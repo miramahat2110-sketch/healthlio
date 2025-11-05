@@ -3,33 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🌿 HEALIO</title>
+  <title>🌿 HEALIO — Rakan Kesihatan Anda</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(to bottom right, #e9fdf1, #f6f3fe, #ffffff);
-      color: #333;
-      overflow-x: hidden;
+    /* ---------- ASAS REKA BENTUK ---------- */
+    :root {
+      --mint: #c3f3d8;
+      --lavender: #e6d8ff;
+      --white: #ffffff;
+      --green: #1d8a59;
+      --purple: #8a60d4;
     }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      color: #333;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, var(--mint), var(--lavender), var(--white));
+    }
+
+    /* ---------- ANIMASI BUIH ---------- */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.4;
+      background: rgba(255,255,255,0.8);
+      animation: float 12s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); opacity: 0.6; }
+      50% { transform: translateY(-60px); opacity: 0.8; }
+      100% { transform: translateY(0); opacity: 0.6; }
+    }
+
+    .bubble:nth-child(1){ width: 100px; height: 100px; top: 80%; left: 5%; animation-delay: 0s;}
+    .bubble:nth-child(2){ width: 80px; height: 80px; top: 70%; left: 80%; animation-delay: 2s;}
+    .bubble:nth-child(3){ width: 120px; height: 120px; top: 40%; left: 50%; animation-delay: 4s;}
+    .bubble:nth-child(4){ width: 60px; height: 60px; top: 20%; left: 20%; animation-delay: 1s;}
+
+    /* ---------- NAVBAR ---------- */
     nav {
+      position: sticky;
+      top: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 25px;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(8px);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-radius: 0 0 20px 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      padding: 10px 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      z-index: 100;
     }
 
     nav h1 {
-      color: #2a8a58;
+      font-size: 24px;
       font-weight: 700;
+      color: var(--green);
       cursor: pointer;
     }
 
@@ -38,68 +70,82 @@
       border: none;
       font-size: 22px;
       cursor: pointer;
-      transition: transform 0.2s;
+      margin-left: 8px;
+      transition: transform 0.2s ease;
     }
+    .nav-btns button:hover { transform: scale(1.2); }
 
-    .nav-btns button:hover {
-      transform: scale(1.2);
-    }
-
+    /* ---------- SEKSYEN UTAMA ---------- */
     section {
       display: none;
-      padding: 40px 20px;
+      padding: 60px 20px;
       text-align: center;
-      animation: fade 0.5s ease-in-out;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    section.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px);}
+      to { opacity: 1; transform: translateY(0);}
     }
 
-    @keyframes fade {
-      from {opacity: 0; transform: translateY(10px);}
-      to {opacity: 1; transform: translateY(0);}
-    }
-
-    .active {
-      display: block;
-    }
-
+    /* ---------- KAD ---------- */
     .card {
-      background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(6px);
-      border-radius: 20px;
-      padding: 25px;
-      max-width: 400px;
+      max-width: 420px;
       margin: 20px auto;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      padding: 25px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      backdrop-filter: blur(10px);
     }
 
     input, button {
+      width: 90%;
       padding: 10px;
-      margin: 6px 0;
+      margin: 8px 0;
       border-radius: 10px;
       border: 1px solid #ccc;
-      width: 90%;
       font-size: 15px;
     }
 
     button.calc {
-      background-color: #2eb872;
+      background: linear-gradient(90deg, var(--green), var(--purple));
       color: white;
       font-weight: 600;
+      border: none;
       cursor: pointer;
+      transition: opacity 0.3s;
     }
+    button.calc:hover { opacity: 0.85; }
 
-    button.calc:hover {
-      background-color: #219a5f;
-    }
-
+    /* ---------- FOOTER ---------- */
     footer {
       text-align: center;
       color: #666;
       font-size: 14px;
-      padding: 30px;
+      padding: 40px 20px;
+      background: rgba(255,255,255,0.6);
+      margin-top: 50px;
+    }
+
+    a { color: var(--purple); text-decoration: none; font-weight: 600; }
+
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      nav h1 { font-size: 20px; }
+      .nav-btns button { font-size: 18px; }
     }
   </style>
 </head>
 <body>
+  <!-- BUBBLE ANIMATION -->
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+
+  <!-- NAVBAR -->
   <nav>
     <h1 onclick="showPage('home')">🌿 HEALIO</h1>
     <div class="nav-btns">
@@ -116,69 +162,81 @@
 
   <!-- HOME -->
   <section id="home" class="active">
-    <h2>Rakan Kesihatan Peribadi Awak 💚</h2>
-    <p>“Sihat dan Bahagia bersama Healio.”</p>
+    <h2 style="font-size:26px;color:var(--green);font-weight:700;">Rakan Kesihatan Peribadi Anda 💚</h2>
+    <p style="margin-top:10px;color:#555;">Sihat & Bahagia bersama Healio</p>
   </section>
 
-  <!-- HEALTH -->
+  <!-- HEALTH CHECK -->
   <section id="health">
     <div class="card">
-      <h3>🩺 Semakan Kesihatan</h3>
+      <h3 style="color:var(--green);">🩺 Semakan Kesihatan</h3>
       <input type="text" id="nama" placeholder="Nama">
       <input type="number" id="tinggi" placeholder="Tinggi (cm)">
       <input type="number" id="berat" placeholder="Berat (kg)">
       <button class="calc" onclick="kiraBMI()">Kira BMI</button>
-      <p id="hasilBMI"></p>
+      <p id="hasilBMI" style="margin-top:10px;"></p>
     </div>
   </section>
 
   <!-- EXERCISE -->
   <section id="exercise">
-    <h3>🏃 Cadangan Senaman</h3>
-    <p>Sambung dengan Google Fit, Nike Training Club, Strava, JomRun.</p>
-    <p><em>“Langkah kecil hari ini, perubahan besar esok.”</em></p>
+    <div class="card">
+      <h3 style="color:var(--purple);">🏃 Cadangan Senaman</h3>
+      <p>Hubungkan dengan Google Fit, Nike Training Club, Strava & JomRun.</p>
+      <p style="font-style:italic;margin-top:10px;">“Langkah kecil hari ini, perubahan besar esok.”</p>
+    </div>
   </section>
 
   <!-- DIET -->
   <section id="diet">
-    <h3>🍎 Kalori & Diet</h3>
-    <p>Masukkan makanan, lihat jumlah kalori & alternatif sihat.</p>
-    <a href="https://cookpad.com/eng" target="_blank">
-      <button class="calc">Resepi Sihat</button>
-    </a>
+    <div class="card">
+      <h3 style="color:var(--green);">🍎 Kalori & Diet</h3>
+      <p>Masukkan makanan & lihat jumlah kalori bersama cadangan sihat.</p>
+      <a href="https://cookpad.com/eng" target="_blank">
+        <button class="calc" style="margin-top:10px;">Resepi Sihat</button>
+      </a>
+    </div>
   </section>
 
-  <!-- MENTAL -->
+  <!-- MENTAL HEALTH -->
   <section id="mental">
-    <h3>🧠 Kesihatan Mental</h3>
-    <a href="https://mentari.moh.gov.my/self-test/" target="_blank">Ujian Kendiri Mental (KKM)</a>
-    <div id="motivasi" style="margin-top:20px;"></div>
+    <div class="card">
+      <h3 style="color:var(--purple);">🧠 Kesihatan Mental</h3>
+      <a href="https://mentari.moh.gov.my/self-test/" target="_blank">Ujian Kendiri Mental (KKM)</a>
+      <div id="motivasi" style="margin-top:20px;font-weight:500;"></div>
+    </div>
   </section>
 
   <!-- MBTI -->
   <section id="mbti">
-    <h3>🧬 Personaliti MBTI</h3>
-    <a href="https://www.16personalities.com/free-personality-test" target="_blank">Uji Personaliti Anda</a>
-    <p>Cadangan gaya hidup berdasarkan personaliti (contoh: INFP, ESTJ).</p>
+    <div class="card">
+      <h3 style="color:var(--purple);">🧬 Personaliti MBTI</h3>
+      <a href="https://www.16personalities.com/free-personality-test" target="_blank">Uji Personaliti Anda</a>
+      <p style="margin-top:10px;">Dapatkan saranan gaya hidup mengikut personaliti (contoh: INFP, ESTJ).</p>
+    </div>
   </section>
 
-  <!-- NCD INFO -->
+  <!-- NCD -->
   <section id="ncd">
-    <h3>❤️ Info Penyakit NCD</h3>
-    <ul style="list-style:none;">
-      <li>🩸 Diabetes</li>
-      <li>💓 Hipertensi</li>
-      <li>❤️ Penyakit Jantung</li>
-      <li>⚖️ Obesiti</li>
-    </ul>
-    <p>Sumber: KKM, WHO, JKN Selangor.</p>
+    <div class="card">
+      <h3 style="color:#d13c52;">❤️ Info Penyakit NCD</h3>
+      <ul style="list-style:none;line-height:1.8;">
+        <li>🩸 Diabetes</li>
+        <li>💓 Hipertensi</li>
+        <li>❤️ Penyakit Jantung</li>
+        <li>⚖️ Obesiti</li>
+      </ul>
+      <p style="margin-top:10px;">Sumber: KKM, WHO, JKN Selangor.</p>
+    </div>
   </section>
 
   <!-- DASHBOARD -->
   <section id="dashboard">
-    <h3>📊 Papan Pemuka</h3>
-    <p>Ringkasan BMI, Kalori, Langkah Harian, Kesihatan Mental, dan MBTI.</p>
-    <button class="calc">Kemaskini Maklumat Saya</button>
+    <div class="card">
+      <h3 style="color:var(--green);">📊 Papan Pemuka</h3>
+      <p>Ringkasan BMI, Kalori, Langkah Harian, MBTI & Kesihatan Mental.</p>
+      <button class="calc" style="margin-top:10px;">Kemaskini Maklumat Saya</button>
+    </div>
   </section>
 
   <footer>
@@ -186,29 +244,28 @@
   </footer>
 
   <script>
-    // NAVIGATION
+    // Tukar halaman
     function showPage(id) {
       document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
       document.getElementById(id).classList.add("active");
     }
 
-    // BMI CALCULATOR
+    // Kira BMI
     function kiraBMI() {
       const tinggi = parseFloat(document.getElementById("tinggi").value);
       const berat = parseFloat(document.getElementById("berat").value);
-      if (!tinggi || !berat) return alert("Sila isi tinggi dan berat.");
+      if (!tinggi || !berat) return alert("Sila isi tinggi dan berat anda.");
       const bmi = berat / ((tinggi/100)**2);
       let status = "";
       if (bmi < 18.5) status = "Kurus";
       else if (bmi < 25) status = "Sihat";
       else if (bmi < 30) status = "Sederhana";
       else status = "Berisiko Tinggi";
-
-      document.getElementById("hasilBMI").innerHTML = 
-        `BMI: <strong>${bmi.toFixed(1)}</strong><br>Status: <span style="color:#7a42f4;font-weight:600;">${status}</span>`;
+      document.getElementById("hasilBMI").innerHTML =
+        `BMI: <b>${bmi.toFixed(1)}</b><br>Status: <span style="color:var(--purple);font-weight:600;">${status}</span>`;
     }
 
-    // MOTIVASI SLIDER
+    // Kata-kata motivasi
     const motivasiList = [
       "Kesihatan mental sama penting dengan fizikal 💖",
       "Ambil masa untuk diri sendiri 🌸",
@@ -216,14 +273,14 @@
       "Rehat bukan tanda lemah 🌙",
       "Setiap hari adalah peluang baru 🌅"
     ];
-
-    let index = 0;
+    let i = 0;
     function tukarMotivasi() {
       const m = document.getElementById("motivasi");
-      m.innerHTML = `<p>${motivasiList[index]}</p>`;
-      index = (index + 1) % motivasiList.length;
+      if (!m) return;
+      m.innerHTML = motivasiList[i];
+      i = (i + 1) % motivasiList.length;
     }
-    setInterval(tukarMotivasi, 2500);
+    setInterval(tukarMotivasi, 3000);
     tukarMotivasi();
   </script>
 </body>
