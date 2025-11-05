@@ -1,238 +1,230 @@
-// File: src/App.jsx
-import { useState } from "react";
-import { motion } from "framer-motion";
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌿 HEALIO</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #e9fdf1, #f6f3fe, #ffffff);
+      color: #333;
+      overflow-x: hidden;
+    }
 
-export default function App() {
-  const [page, setPage] = useState("home");
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 25px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
 
-  const pages = {
-    home: <HomePage />,
-    health: <HealthCheck />,
-    exercise: <Exercise />,
-    diet: <Diet />,
-    mental: <Mental />,
-    mbti: <MBTI />,
-    ncd: <NCDInfo />,
-    dashboard: <Dashboard />,
-  };
+    nav h1 {
+      color: #2a8a58;
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-purple-50 to-white text-gray-800 font-sans">
-      <nav className="flex justify-between items-center px-6 py-4 bg-white/60 backdrop-blur-lg shadow-md rounded-b-2xl sticky top-0 z-50">
-        <div
-          onClick={() => setPage("home")}
-          className="text-2xl font-bold text-green-600 cursor-pointer"
-        >
-          🌿 HEALIO
-        </div>
-        <div className="flex gap-4">
-          {["🏠", "🩺", "🏃", "🍎", "🧠", "🧬", "❤️", "📊"].map((icon, i) => (
-            <button
-              key={i}
-              onClick={() =>
-                setPage(
-                  ["home", "health", "exercise", "diet", "mental", "mbti", "ncd", "dashboard"][i]
-                )
-              }
-              className="text-xl hover:scale-110 transition-transform"
-            >
-              {icon}
-            </button>
-          ))}
-        </div>
-      </nav>
+    .nav-btns button {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
 
-      <motion.div
-        key={page}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-6 md:p-10"
-      >
-        {pages[page]}
-      </motion.div>
+    .nav-btns button:hover {
+      transform: scale(1.2);
+    }
 
-      <footer className="text-center text-sm py-6 text-gray-500">
-        Healio — Memperkasa rakyat Malaysia untuk hidup lebih sihat dan bahagia 🌱
-      </footer>
+    section {
+      display: none;
+      padding: 40px 20px;
+      text-align: center;
+      animation: fade 0.5s ease-in-out;
+    }
+
+    @keyframes fade {
+      from {opacity: 0; transform: translateY(10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .active {
+      display: block;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(6px);
+      border-radius: 20px;
+      padding: 25px;
+      max-width: 400px;
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    input, button {
+      padding: 10px;
+      margin: 6px 0;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      width: 90%;
+      font-size: 15px;
+    }
+
+    button.calc {
+      background-color: #2eb872;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.calc:hover {
+      background-color: #219a5f;
+    }
+
+    footer {
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      padding: 30px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <h1 onclick="showPage('home')">🌿 HEALIO</h1>
+    <div class="nav-btns">
+      <button onclick="showPage('home')">🏠</button>
+      <button onclick="showPage('health')">🩺</button>
+      <button onclick="showPage('exercise')">🏃</button>
+      <button onclick="showPage('diet')">🍎</button>
+      <button onclick="showPage('mental')">🧠</button>
+      <button onclick="showPage('mbti')">🧬</button>
+      <button onclick="showPage('ncd')">❤️</button>
+      <button onclick="showPage('dashboard')">📊</button>
     </div>
-  );
-}
+  </nav>
 
-// --- COMPONENTS ---
+  <!-- HOME -->
+  <section id="home" class="active">
+    <h2>Rakan Kesihatan Peribadi Awak 💚</h2>
+    <p>“Sihat dan Bahagia bersama Healio.”</p>
+  </section>
 
-function HomePage() {
-  return (
-    <div className="text-center space-y-6">
-      <h1 className="text-3xl font-bold text-green-700">
-        “Rakan Kesihatan Peribadi Awak — Sihat & Bahagia bersama Healio.”
-      </h1>
-      <p className="text-gray-600">
-        Pilih menu di atas untuk mula menjaga kesihatan anda 💪
-      </p>
+  <!-- HEALTH -->
+  <section id="health">
+    <div class="card">
+      <h3>🩺 Semakan Kesihatan</h3>
+      <input type="text" id="nama" placeholder="Nama">
+      <input type="number" id="tinggi" placeholder="Tinggi (cm)">
+      <input type="number" id="berat" placeholder="Berat (kg)">
+      <button class="calc" onclick="kiraBMI()">Kira BMI</button>
+      <p id="hasilBMI"></p>
     </div>
-  );
-}
+  </section>
 
-function HealthCheck() {
-  const [nama, setNama] = useState("");
-  const [tinggi, setTinggi] = useState("");
-  const [berat, setBerat] = useState("");
-  const [bmi, setBmi] = useState(null);
+  <!-- EXERCISE -->
+  <section id="exercise">
+    <h3>🏃 Cadangan Senaman</h3>
+    <p>Sambung dengan Google Fit, Nike Training Club, Strava, JomRun.</p>
+    <p><em>“Langkah kecil hari ini, perubahan besar esok.”</em></p>
+  </section>
 
-  const kiraBMI = () => {
-    if (!tinggi || !berat) return;
-    const val = berat / ((tinggi / 100) ** 2);
-    setBmi(val.toFixed(1));
-  };
+  <!-- DIET -->
+  <section id="diet">
+    <h3>🍎 Kalori & Diet</h3>
+    <p>Masukkan makanan, lihat jumlah kalori & alternatif sihat.</p>
+    <a href="https://cookpad.com/eng" target="_blank">
+      <button class="calc">Resepi Sihat</button>
+    </a>
+  </section>
 
-  const klasifikasi = bmi
-    ? bmi < 18.5
-      ? "Kurus"
-      : bmi < 25
-      ? "Sihat"
-      : bmi < 30
-      ? "Sederhana"
-      : "Berisiko Tinggi"
-    : null;
+  <!-- MENTAL -->
+  <section id="mental">
+    <h3>🧠 Kesihatan Mental</h3>
+    <a href="https://mentari.moh.gov.my/self-test/" target="_blank">Ujian Kendiri Mental (KKM)</a>
+    <div id="motivasi" style="margin-top:20px;"></div>
+  </section>
 
-  return (
-    <div className="max-w-md mx-auto bg-white/70 backdrop-blur-md p-6 rounded-2xl shadow-md space-y-4">
-      <h2 className="text-2xl font-semibold text-green-700 text-center">
-        🩺 Semakan Kesihatan
-      </h2>
-      <input
-        placeholder="Nama"
-        value={nama}
-        onChange={(e) => setNama(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
-      <input
-        type="number"
-        placeholder="Tinggi (cm)"
-        value={tinggi}
-        onChange={(e) => setTinggi(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
-      <input
-        type="number"
-        placeholder="Berat (kg)"
-        value={berat}
-        onChange={(e) => setBerat(e.target.value)}
-        className="w-full border rounded-lg p-2"
-      />
-      <button
-        onClick={kiraBMI}
-        className="w-full bg-green-500 text-white py-2 rounded-xl hover:bg-green-600"
-      >
-        Kira BMI
-      </button>
-      {bmi && (
-        <div className="text-center mt-3">
-          <p>
-            BMI: <span className="font-semibold">{bmi}</span>
-          </p>
-          <p className="font-bold text-purple-700">{klasifikasi}</p>
-        </div>
-      )}
-    </div>
-  );
-}
+  <!-- MBTI -->
+  <section id="mbti">
+    <h3>🧬 Personaliti MBTI</h3>
+    <a href="https://www.16personalities.com/free-personality-test" target="_blank">Uji Personaliti Anda</a>
+    <p>Cadangan gaya hidup berdasarkan personaliti (contoh: INFP, ESTJ).</p>
+  </section>
 
-function Exercise() {
-  return (
-    <div className="text-center space-y-3">
-      <h2 className="text-2xl font-semibold text-purple-700">🏃 Cadangan Senaman</h2>
-      <p>Sambung dengan Google Fit, Nike Training Club, Strava, JomRun.</p>
-      <p>“Langkah kecil hari ini, perubahan besar esok.” 💪</p>
-    </div>
-  );
-}
+  <!-- NCD INFO -->
+  <section id="ncd">
+    <h3>❤️ Info Penyakit NCD</h3>
+    <ul style="list-style:none;">
+      <li>🩸 Diabetes</li>
+      <li>💓 Hipertensi</li>
+      <li>❤️ Penyakit Jantung</li>
+      <li>⚖️ Obesiti</li>
+    </ul>
+    <p>Sumber: KKM, WHO, JKN Selangor.</p>
+  </section>
 
-function Diet() {
-  return (
-    <div className="text-center space-y-3">
-      <h2 className="text-2xl font-semibold text-green-600">🍎 Kalori & Diet</h2>
-      <p>Muat naik gambar makanan untuk kiraan kalori automatik.</p>
-      <a
-        href="https://cookpad.com/eng"
-        target="_blank"
-        className="inline-block bg-purple-400 text-white px-4 py-2 rounded-full"
-      >
-        Resepi Sihat
-      </a>
-    </div>
-  );
-}
+  <!-- DASHBOARD -->
+  <section id="dashboard">
+    <h3>📊 Papan Pemuka</h3>
+    <p>Ringkasan BMI, Kalori, Langkah Harian, Kesihatan Mental, dan MBTI.</p>
+    <button class="calc">Kemaskini Maklumat Saya</button>
+  </section>
 
-function Mental() {
-  const motivasi = [
-    "Kesihatan mental sama penting dengan fizikal 💖",
-    "Ambil masa untuk diri sendiri 🌸",
-    "Jangan takut untuk minta bantuan 🤝",
-    "Rehat bukan tanda lemah 🌙",
-    "Setiap hari adalah peluang baru 🌅",
-  ];
+  <footer>
+    🌿 Healio © 2025 — Hidup Lebih Sihat & Bahagia
+  </footer>
 
-  return (
-    <div className="text-center space-y-4">
-      <h2 className="text-2xl font-semibold text-purple-700">🧠 Kesihatan Mental</h2>
-      <a
-        href="https://mentari.moh.gov.my/self-test/"
-        target="_blank"
-        className="text-blue-600 underline"
-      >
-        Ujian Kendiri Mental (KKM)
-      </a>
-      <div className="space-y-2">
-        {motivasi.map((m, i) => (
-          <motion.p key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.3 }}>
-            {m}
-          </motion.p>
-        ))}
-      </div>
-    </div>
-  );
-}
+  <script>
+    // NAVIGATION
+    function showPage(id) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
 
-function MBTI() {
-  return (
-    <div className="text-center space-y-3">
-      <h2 className="text-2xl font-semibold text-purple-700">🧬 Personaliti MBTI</h2>
-      <a
-        href="https://www.16personalities.com/free-personality-test"
-        target="_blank"
-        className="text-blue-600 underline"
-      >
-        Uji MBTI Anda
-      </a>
-      <p>Cadangan gaya hidup berdasarkan personaliti anda.</p>
-    </div>
-  );
-}
+    // BMI CALCULATOR
+    function kiraBMI() {
+      const tinggi = parseFloat(document.getElementById("tinggi").value);
+      const berat = parseFloat(document.getElementById("berat").value);
+      if (!tinggi || !berat) return alert("Sila isi tinggi dan berat.");
+      const bmi = berat / ((tinggi/100)**2);
+      let status = "";
+      if (bmi < 18.5) status = "Kurus";
+      else if (bmi < 25) status = "Sihat";
+      else if (bmi < 30) status = "Sederhana";
+      else status = "Berisiko Tinggi";
 
-function NCDInfo() {
-  return (
-    <div className="text-center space-y-3">
-      <h2 className="text-2xl font-semibold text-red-600">❤️ NCD Info</h2>
-      <p>Maklumat daripada KKM, WHO dan JKN Selangor.</p>
-      <ul className="list-disc text-left max-w-md mx-auto">
-        <li>Diabetes</li>
-        <li>Hipertensi</li>
-        <li>Penyakit Jantung</li>
-        <li>Obesiti</li>
-      </ul>
-    </div>
-  );
-}
+      document.getElementById("hasilBMI").innerHTML = 
+        `BMI: <strong>${bmi.toFixed(1)}</strong><br>Status: <span style="color:#7a42f4;font-weight:600;">${status}</span>`;
+    }
 
-function Dashboard() {
-  return (
-    <div className="text-center space-y-3">
-      <h2 className="text-2xl font-semibold text-green-600">📊 Papan Pemuka</h2>
-      <p>Ringkasan BMI, Tekanan Darah, Kalori & Kesihatan Mental.</p>
-      <button className="bg-green-500 text-white px-4 py-2 rounded-full">
-        Kemaskini Maklumat Saya
-      </button>
-    </div>
-  );
-}
+    // MOTIVASI SLIDER
+    const motivasiList = [
+      "Kesihatan mental sama penting dengan fizikal 💖",
+      "Ambil masa untuk diri sendiri 🌸",
+      "Jangan takut untuk minta bantuan 🤝",
+      "Rehat bukan tanda lemah 🌙",
+      "Setiap hari adalah peluang baru 🌅"
+    ];
+
+    let index = 0;
+    function tukarMotivasi() {
+      const m = document.getElementById("motivasi");
+      m.innerHTML = `<p>${motivasiList[index]}</p>`;
+      index = (index + 1) % motivasiList.length;
+    }
+    setInterval(tukarMotivasi, 2500);
+    tukarMotivasi();
+  </script>
+</body>
+</html>
