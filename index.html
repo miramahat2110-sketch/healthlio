@@ -1,1057 +1,669 @@
 <!doctype html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Healio - Rakan Kesihatan Peribadi</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Healio — Rakan Kesihatan Peribadi</title>
 
-  <!-- Tailwind CDN -->
+  <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root{
-      --green-1:#86efac; --purple-1:#a78bfa;
+      --mint: #c6f6d5;
+      --mint-2: #86efac;
+      --lav: #f3e8ff;
+      --purple: #8b5cf6;
+      --bg1: linear-gradient(135deg,#f0fff4 0%, #faf5ff 60%, #ffffff 100%);
     }
-    body { box-sizing: border-box; -webkit-font-smoothing:antialiased; }
-    .gradient-bg { background: linear-gradient(135deg, #f0fdf4 0%, #faf5ff 50%, #ffffff 100%); min-height:100vh; }
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{background:var(--bg1);color:#1f2937;overflow-x:hidden;}
 
-    /* bubble anims */
-    @keyframes bubble {
-      0% { transform: translateY(100vh) scale(0); opacity:0; }
-      10% { opacity:0.5; }
-      70% { opacity:0.9; }
-      100% { transform: translateY(-200px) scale(1); opacity:0; }
+    /* NAV */
+    nav{position:sticky;top:8px;z-index:40}
+    .nav-glass{background:rgba(255,255,255,0.7);backdrop-filter:blur(8px);border-radius:18px;box-shadow:0 6px 18px rgba(16,24,40,0.06);}
+
+    /* Bubbles background (decorative) */
+    #bubble-wrap{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bubble {
+      position:absolute;border-radius:9999px;
+      background: radial-gradient(circle at 30% 30%, rgba(134,239,172,0.28), rgba(167,139,250,0.18));
+      filter: blur(8px);
+      opacity:0.6;
+      animation: rise linear infinite;
     }
-    .floating-bubble { position: absolute; border-radius:9999px; background: linear-gradient(45deg, rgba(134,239,172,0.25), rgba(167,139,250,0.18)); pointer-events:none; }
-
-    /* floating subtle movement */
-    @keyframes floaty {
-      0% { transform: translateY(0) rotate(0deg); }
-      33% { transform: translateY(-18px) rotate(120deg); }
-      66% { transform: translateY(-10px) rotate(240deg); }
-      100% { transform: translateY(0) rotate(360deg); }
+    @keyframes rise {
+      0% { transform: translateY(120vh) scale(0.4); opacity:0; }
+      10% { opacity:0.35;}
+      60% { opacity:0.85; }
+      100% { transform: translateY(-40vh) scale(1); opacity:0; }
     }
-    .floating-element { animation: floaty 6s ease-in-out infinite; }
 
-    .card-hover { transition: all .25s ease; }
-    .card-hover:hover { transform: translateY(-6px); box-shadow:0 20px 40px rgba(134,239,172,0.12); }
+    /* card hover */
+    .card-hover{transition:transform .25s ease, box-shadow .25s ease;}
+    .card-hover:hover{transform:translateY(-8px);box-shadow:0 20px 40px rgba(16,24,40,0.08);}
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--green-1), var(--purple-1));
-      color:white;
-      border-radius:999px;
-      padding: .6rem 1.1rem;
-      display:inline-block;
-      font-weight:600;
+    .btn-grad{
+      background:linear-gradient(90deg,var(--mint-2),var(--purple));
+      color:white;padding:.6rem 1rem;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;
     }
-    .btn-primary:hover { opacity:.92; transform:translateY(-2px); }
+    .btn-grad:hover{opacity:.95;transform:translateY(-2px);}
 
-    .progress-bar { background: linear-gradient(90deg,var(--green-1),var(--purple-1)); height:100%; border-radius:999px; }
+    .progress-gradient{background:linear-gradient(90deg,var(--mint-2),var(--purple));height:100%;border-radius:999px;}
 
-    /* view transition hint (some browsers) */
-    @view-transition { navigation: auto; }
+    /* small screens layout fix */
+    @media(max-width:640px){
+      .hide-sm{display:none;}
+      .nav-gap{gap:.5rem}
+    }
   </style>
 </head>
+<body>
 
-<body class="gradient-bg min-h-full overflow-x-hidden relative">
-  <!-- Floating Bubbles Container (JS will populate) -->
-  <div id="bubbles" class="fixed inset-0 z-0 pointer-events-none"></div>
+  <!-- decorative bubbles -->
+  <div id="bubble-wrap" aria-hidden="true"></div>
 
   <!-- NAV -->
-  <nav class="bg-white/80 backdrop-blur-md shadow-lg rounded-b-3xl mx-4 mb-6 relative z-10">
-    <div class="max-w-7xl mx-auto px-6 py-4">
+  <nav class="mx-4">
+    <div class="nav-glass max-w-7xl mx-auto px-4 py-3">
       <div class="flex items-center justify-between">
-        <button onclick="showSection('home')" class="flex items-center space-x-2 text-2xl font-bold text-green-600 hover:text-green-700 transition-colors">
-          <span>🌿</span> <span id="app-title">HEALIO</span>
-        </button>
-        <button onclick="showSection('home')" class="btn-primary">🏠 Laman Utama</button>
+        <div class="flex items-center space-x-3">
+          <button onclick="show('home')" class="flex items-center gap-2 text-xl font-bold text-green-700">
+            <span style="font-size:1.4rem">🌿</span><span>HEALIO</span>
+          </button>
+          <div class="hidden md:flex items-center space-x-2 text-sm text-gray-600 nav-gap">
+            <button onclick="show('health')" class="px-3 py-1 rounded-full hover:bg-gray-100">Semakan Kesihatan</button>
+            <button onclick="show('exercise')" class="px-3 py-1 rounded-full hover:bg-gray-100">Senaman</button>
+            <button onclick="show('calories')" class="px-3 py-1 rounded-full hover:bg-gray-100">Kalori & Diet</button>
+            <button onclick="show('mental')" class="px-3 py-1 rounded-full hover:bg-gray-100">Kesihatan Mental</button>
+            <button onclick="show('mbti')" class="px-3 py-1 rounded-full hover:bg-gray-100">MBTI</button>
+            <button onclick="show('ncd')" class="px-3 py-1 rounded-full hover:bg-gray-100">NCD Info</button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button class="btn-grad hide-sm" onclick="show('dashboard')">📊 Dashboard Saya</button>
+          <button class="md:hidden p-2 rounded-lg" onclick="toggleMobileMenu()">☰</button>
+        </div>
       </div>
     </div>
   </nav>
 
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="max-w-7xl mx-auto px-4 mt-2 hidden">
+    <div class="bg-white/80 backdrop-blur rounded-xl p-3 shadow">
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <button onclick="show('health')" class="text-left p-2 rounded-lg hover:bg-gray-100">🩺 Semakan Kesihatan</button>
+        <button onclick="show('exercise')" class="text-left p-2 rounded-lg hover:bg-gray-100">🏃 Senaman</button>
+        <button onclick="show('calories')" class="text-left p-2 rounded-lg hover:bg-gray-100">🍎 Kalori</button>
+        <button onclick="show('mental')" class="text-left p-2 rounded-lg hover:bg-gray-100">🧠 Mental</button>
+        <button onclick="show('mbti')" class="text-left p-2 rounded-lg hover:bg-gray-100">🧬 MBTI</button>
+        <button onclick="show('ncd')" class="text-left p-2 rounded-lg hover:bg-gray-100">❤️ NCD Info</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN -->
-  <div class="max-w-7xl mx-auto px-4 relative z-10 pb-20">
+  <main class="max-w-7xl mx-auto px-4 relative z-10 pt-6 pb-28">
+
     <!-- HOME -->
-    <section id="home-section" class="text-center mb-12">
-      <div class="mb-8">
-        <div class="mb-6">
-          <h1 class="text-6xl font-bold bg-gradient-to-r from-green-400 via-purple-300 to-pink-300 bg-clip-text text-transparent mb-2" id="app-title-large">HEALIO</h1>
-          <div class="w-32 h-1 bg-gradient-to-r from-green-300 to-purple-300 mx-auto rounded-full"></div>
-        </div>
-        <h2 class="text-4xl font-bold text-gray-800 mb-4" id="main-tagline">Rakan Kesihatan Peribadi Awak</h2>
-        <p class="text-xl text-gray-600 mb-8" id="welcome-message">Sihat dan Bahagia bersama Healio</p>
+    <section id="home" class="mb-10">
+      <div class="text-center mb-8">
+        <h1 class="text-5xl md:text-6xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-green-400 via-purple-300 to-pink-300">HEALIO</h1>
+        <p class="mt-3 text-lg text-gray-600">Rakan Kesihatan Peribadi Awak — Sihat dan Bahagia bersama Healio</p>
       </div>
 
-      <!-- feature cards grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        <!-- Semakan Kesihatan -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">🩺</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">Semakan Kesihatan</h3>
-          <p class="text-gray-600 mb-4">Kira BMI dan dapatkan saranan kesihatan peribadi</p>
-          <button onclick="showSection('health-check')" class="btn-primary w-full">Mula Semakan</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card component repeated -->
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">🩺</div>
+          <h3 class="font-semibold text-lg mb-2">Semakan Kesihatan</h3>
+          <p class="text-sm text-gray-600 mb-4">Kira BMI, berat & dapatkan saranan.</p>
+          <button class="btn-grad w-full" onclick="show('health')">Mula Semakan</button>
         </div>
 
-        <!-- Cadangan Senaman -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">🏃</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">Cadangan Senaman</h3>
-          <p class="text-gray-600 mb-4">Senaman yang sesuai dengan tahap kesihatan anda</p>
-          <button onclick="showSection('exercise')" class="btn-primary w-full">Lihat Senaman</button>
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">🏃</div>
+          <h3 class="font-semibold text-lg mb-2">Cadangan Senaman</h3>
+          <p class="text-sm text-gray-600 mb-4">Senaman sesuai ikut tahap anda.</p>
+          <button class="btn-grad w-full" onclick="show('exercise')">Lihat Senaman</button>
         </div>
 
-        <!-- Kalori & Diet -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">🍎</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">Kalori & Diet</h3>
-          <p class="text-gray-600 mb-4">Jejak kalori dan dapatkan resepi sihat</p>
-          <button onclick="showSection('calories')" class="btn-primary w-full">Kira Kalori</button>
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">🍎</div>
+          <h3 class="font-semibold text-lg mb-2">Kalori & Diet</h3>
+          <p class="text-sm text-gray-600 mb-4">Jejak pengambilan & cadangan resepi.</p>
+          <button class="btn-grad w-full" onclick="show('calories')">Kira Kalori</button>
         </div>
 
-        <!-- Kesihatan Mental -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">🧠</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">Kesihatan Mental</h3>
-          <p class="text-gray-600 mb-4">Ujian dan sokongan kesihatan mental</p>
-          <button onclick="showSection('mental-health')" class="btn-primary w-full">Ujian Mental</button>
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">🧠</div>
+          <h3 class="font-semibold text-lg mb-2">Kesihatan Mental</h3>
+          <p class="text-sm text-gray-600 mb-4">Ujian & sokongan.</p>
+          <button class="btn-grad w-full" onclick="show('mental')">Ujian Mental</button>
         </div>
 
-        <!-- MBTI -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">🧬</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">Personaliti MBTI</h3>
-          <p class="text-gray-600 mb-4">Kenali personaliti dan gaya hidup sesuai</p>
-          <button onclick="showSection('mbti')" class="btn-primary w-full">Ujian MBTI</button>
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">🧬</div>
+          <h3 class="font-semibold text-lg mb-2">Personaliti MBTI</h3>
+          <p class="text-sm text-gray-600 mb-4">Kenali diri & gaya hidup sesuai.</p>
+          <button class="btn-grad w-full" onclick="show('mbti')">Ujian MBTI</button>
         </div>
 
-        <!-- NCD Info -->
-        <div class="card-hover bg-white/90 backdrop-blur-sm rounded-3xl p-6 shadow-lg">
-          <div class="text-4xl mb-4">❤️</div>
-          <h3 class="text-xl font-bold text-gray-800 mb-3">NCD Info</h3>
-          <p class="text-gray-600 mb-4">Maklumat penyakit tidak berjangkit</p>
-          <button onclick="showSection('ncd-info')" class="btn-primary w-full">Baca Info</button>
+        <div class="card-hover bg-white/90 p-6 rounded-2xl shadow-md">
+          <div class="text-4xl mb-3">❤️</div>
+          <h3 class="font-semibold text-lg mb-2">NCD Info</h3>
+          <p class="text-sm text-gray-600 mb-4">Maklumat penyakit tidak berjangkit & pencegahan.</p>
+          <button class="btn-grad w-full" onclick="show('ncd')">Baca Info</button>
         </div>
       </div>
 
-      <div class="text-center">
-        <button onclick="showSection('dashboard')" class="btn-primary px-8 py-3 rounded-full font-bold text-lg shadow-lg">📊 Dashboard Saya</button>
+      <div class="text-center mt-8">
+        <button class="btn-grad px-8 py-3 text-lg" onclick="show('dashboard')">📊 Pergi ke Dashboard</button>
       </div>
     </section>
 
-    <!-- HEALTH CHECK -->
-    <section id="health-check-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">🩺 Semakan Kesihatan</h2>
-          <p class="text-gray-600">Masukkan maklumat anda untuk mendapat penilaian kesihatan</p>
-        </div>
+    <!-- Health Section (full interactive) -->
+    <section id="health" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">🩺 Semakan Kesihatan</h2>
+        <p class="text-sm text-gray-600 mb-4">Masukkan data untuk analisis ringkas (BMI, saranan).</p>
 
-        <form id="health-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nama</label>
-              <input type="text" id="name" name="name" required class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label for="age" class="block text-sm font-medium text-gray-700 mb-2">Umur</label>
-              <input type="number" id="age" name="age" required class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label for="job" class="block text-sm font-medium text-gray-700 mb-2">Pekerjaan</label>
-              <input type="text" id="job" name="job" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label for="height" class="block text-sm font-medium text-gray-700 mb-2">Tinggi (cm)</label>
-              <input type="number" id="height" name="height" required class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">Berat (kg)</label>
-              <input type="number" id="weight" name="weight" required class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div>
-              <label for="blood-pressure" class="block text-sm font-medium text-gray-700 mb-2">Tekanan Darah (pilihan)</label>
-              <input type="text" id="blood-pressure" name="blood-pressure" placeholder="120/80" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
-            <div class="md:col-span-2">
-              <label for="blood-sugar" class="block text-sm font-medium text-gray-700 mb-2">Gula dalam Darah (pilihan)</label>
-              <input type="text" id="blood-sugar" name="blood-sugar" placeholder="mg/dL" class="w-full px-4 py-3 rounded-2xl border border-gray-300 focus:ring-2 focus:ring-green-500" />
-            </div>
+        <form id="form-health" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+            <input id="h_name" type="text" placeholder="Nama" class="w-full px-4 py-2 rounded-xl border"/>
           </div>
-
-          <div class="text-center">
-            <button type="submit" class="btn-primary w-full"><span id="health-submit-text">Analisis Kesihatan</span> <span id="health-loading" class="hidden">Menganalisis...</span></button>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Umur</label>
+            <input id="h_age" type="number" placeholder="Umur" class="w-full px-4 py-2 rounded-xl border"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tinggi (cm)</label>
+            <input id="h_height" type="number" placeholder="Tinggi (cm)" class="w-full px-4 py-2 rounded-xl border"/>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Berat (kg)</label>
+            <input id="h_weight" type="number" placeholder="Berat (kg)" class="w-full px-4 py-2 rounded-xl border"/>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tekanan Darah (pilihan)</label>
+            <input id="h_bp" type="text" placeholder="120/80" class="w-full px-4 py-2 rounded-xl border"/>
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Gula Darah (pilihan)</label>
+            <input id="h_sugar" type="text" placeholder="mg/dL" class="w-full px-4 py-2 rounded-xl border"/>
+          </div>
+          <div class="md:col-span-2">
+            <button type="submit" class="btn-grad w-full py-3">Analisis Kesihatan</button>
           </div>
         </form>
 
-        <div id="health-results" class="hidden mt-8 p-6 bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl">
-          <!-- results inserted here -->
-        </div>
+        <div id="health-result" class="mt-6 hidden p-4 rounded-xl bg-gradient-to-r from-green-50 to-purple-50"></div>
 
-        <div class="text-center mt-6">
-          <button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button>
+        <div class="mt-6 text-center">
+          <button onclick="show('home')" class="text-gray-600">← Kembali</button>
         </div>
       </div>
     </section>
 
-    <!-- EXERCISE -->
-    <section id="exercise-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">🏃 Cadangan Senaman</h2>
-          <p class="text-gray-600">Senaman yang sesuai untuk anda berdasarkan tahap kesihatan</p>
-        </div>
+    <!-- Exercise -->
+    <section id="exercise" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">🏃 Cadangan Senaman</h2>
+        <p class="text-sm text-gray-600 mb-4">Sesuai untuk pelbagai tahap — link ke apps & tracker.</p>
 
-        <div id="exercise-content" class="space-y-6">
-          <div class="bg-gradient-to-r from-green-100 to-purple-100 rounded-2xl p-6 text-center">
-            <h3 class="text-xl font-bold text-gray-800 mb-2">💪 Motivasi Hari Ini</h3>
-            <p class="text-gray-700 italic">"Kesihatan adalah kekayaan sebenar. Mulakan dengan satu langkah hari ini!"</p>
+        <div class="grid grid-cols-1 gap-4">
+          <div class="rounded-xl p-4 bg-gradient-to-r from-green-50 to-purple-50">
+            <h3 class="font-semibold">Motivasi Hari Ini</h3>
+            <p class="text-sm italic mt-1">“Langkah kecil hari ini, perubahan besar esok.”</p>
           </div>
 
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">📱 Jejak Langkah Harian</h3>
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-gray-600">Langkah Hari Ini:</span>
-              <input type="number" id="daily-steps" placeholder="0" class="px-3 py-2 rounded-lg border border-gray-300 w-24 text-center">
+          <div class="bg-white rounded-xl p-4 shadow">
+            <h3 class="font-semibold mb-2">Jejak Langkah</h3>
+            <div class="flex items-center gap-3">
+              <input id="steps-input" type="number" placeholder="Langkah" class="px-3 py-2 rounded-lg border w-40"/>
+              <button class="btn-grad" onclick="saveSteps()">Simpan</button>
             </div>
-            <button onclick="saveSteps()" class="btn-primary text-white px-4 py-2 rounded-full font-medium">Simpan Langkah</button>
-
-            <div class="mt-4">
-              <div class="flex justify-between text-sm text-gray-600 mb-1">
-                <span>Sasaran: 10,000 langkah</span>
-                <span id="steps-percentage">0%</span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2">
-                <div id="steps-progress" class="progress-bar h-2 rounded-full" style="width:0%"></div>
-              </div>
+            <div class="mt-3 text-sm text-gray-600">Sasaran: 10,000 langkah</div>
+            <div class="mt-2 w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div id="steps-bar" class="progress-gradient h-full" style="width:0%"></div>
             </div>
+            <div id="steps-percent" class="text-sm mt-1 text-gray-700">0%</div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-2xl p-6 shadow-md">
-              <h3 class="text-xl font-bold text-gray-800 mb-4">🏃‍♀️ Senaman Kardio</h3>
-              <ul class="space-y-2 text-gray-600">
-                <li>• Berjalan kaki 30 minit</li>
-                <li>• Jogging ringan 20 minit</li>
-                <li>• Berbasikal 45 minit</li>
-                <li>• Berenang 30 minit</li>
-              </ul>
-            </div>
-            <div class="bg-white rounded-2xl p-6 shadow-md">
-              <h3 class="text-xl font-bold text-gray-800 mb-4">💪 Senaman Kekuatan</h3>
-              <ul class="space-y-2 text-gray-600">
-                <li>• Push-up 3 set x 10</li>
-                <li>• Squat 3 set x 15</li>
-                <li>• Plank 3 set x 30 saat</li>
-                <li>• Lunges 3 set x 12</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">📱 Aplikasi Senaman Disyorkan</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <a href="https://fit.google.com" target="_blank" class="bg-white rounded-xl p-4 text-center hover:shadow-md transition-shadow">
-                <div class="text-2xl mb-2">📊</div><div class="text-sm font-medium">Google Fit</div>
-              </a>
-              <a href="https://www.nike.com/ntc-app" target="_blank" class="bg-white rounded-xl p-4 text-center hover:shadow-md transition-shadow">
-                <div class="text-2xl mb-2">👟</div><div class="text-sm font-medium">Nike Training</div>
-              </a>
-              <a href="https://www.strava.com" target="_blank" class="bg-white rounded-xl p-4 text-center hover:shadow-md transition-shadow">
-                <div class="text-2xl mb-2">🚴</div><div class="text-sm font-medium">Strava</div>
-              </a>
-              <a href="https://jomrun.com" target="_blank" class="bg-white rounded-xl p-4 text-center hover:shadow-md transition-shadow">
-                <div class="text-2xl mb-2">🏃</div><div class="text-sm font-medium">JomRun</div>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center mt-6">
-          <button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- CALORIES -->
-    <section id="calories-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">🍎 Kalori & Diet</h2>
-          <p class="text-gray-600">Jejak kalori harian dan dapatkan cadangan diet sihat</p>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">🍽️ Tambah Makanan</h3>
-
-          <div class="flex justify-center mb-6">
-            <div class="bg-gray-100 rounded-full p-1 flex">
-              <button type="button" id="preset-toggle" onclick="toggleFoodMode('preset')" class="px-6 py-2 rounded-full font-medium transition-all bg-green-500 text-white">📋 Makanan Preset</button>
-              <button type="button" id="custom-toggle" onclick="toggleFoodMode('custom')" class="px-6 py-2 rounded-full font-medium transition-all text-gray-600 hover:text-gray-800">✏️ Makanan Custom</button>
-            </div>
-          </div>
-
-          <form id="food-form" class="space-y-4">
-            <!-- Preset -->
-            <div id="preset-mode" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label for="food-name" class="block text-sm font-medium text-gray-700 mb-2">Nama Makanan</label>
-                <select id="food-name" class="w-full px-4 py-3 rounded-2xl border border-gray-300">
-                  <option value="">Pilih makanan...</option>
-                  <option value="nasi-lemak">Nasi Lemak|644</option>
-                  <option value="teh-susu">Teh Susu|150</option>
-                  <option value="steamboat">Steamboat|400</option>
-                  <option value="roti-canai">Roti Canai|301</option>
-                  <option value="mee-goreng">Mee Goreng|535</option>
-                  <option value="char-kuey-teow">Char Kuey Teow|744</option>
-                  <option value="laksa">Laksa|569</option>
-                  <option value="rendang">Rendang|468</option>
-                  <option value="satay">Satay 10 cucuk|400</option>
-                  <option value="cendol">Cendol|280</option>
-                </select>
-              </div>
-              <div>
-                <label for="portion" class="block text-sm font-medium text-gray-700 mb-2">Bahagian</label>
-                <input type="number" id="portion" value="1" min="0.5" step="0.5" class="w-full px-4 py-3 rounded-2xl border border-gray-300" />
-              </div>
-              <div class="flex items-end">
-                <button type="submit" class="btn-primary w-full">Tambah</button>
-              </div>
-            </div>
-
-            <!-- Custom -->
-            <div id="custom-mode" class="hidden">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Nama Makanan</label>
-                  <input type="text" id="custom-food-name" placeholder="Contoh: Nasi Goreng Kampung" class="w-full px-4 py-3 rounded-2xl border border-gray-300" />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Kalori (kcal)</label>
-                  <input type="number" id="custom-calories" placeholder="300" min="1" class="w-full px-4 py-3 rounded-2xl border border-gray-300" />
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Bahagian</label>
-                  <input type="number" id="custom-portion" value="1" min="0.5" step="0.5" class="w-full px-4 py-3 rounded-2xl border border-gray-300" />
-                </div>
-                <div class="flex items-end">
-                  <button type="button" id="custom-add-btn" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-2xl w-full">Tambah Custom</button>
-                </div>
-              </div>
-
-              <div class="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
-                <h4 class="font-semibold text-purple-800 mb-3">📚 Panduan Kalori Rujukan</h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🍚 Nasi (1 mangkuk)</div><div class="text-purple-600">~200 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🍗 Ayam goreng (1 keping)</div><div class="text-purple-600">~250 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🥚 Telur (1 biji)</div><div class="text-purple-600">~70 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🍌 Pisang (1 biji)</div><div class="text-purple-600">~90 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🍞 Roti (1 keping)</div><div class="text-purple-600">~80 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🥛 Susu (1 gelas)</div><div class="text-purple-600">~150 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">🍎 Epal (1 biji)</div><div class="text-purple-600">~80 kcal</div></div>
-                  <div class="bg-white rounded-lg p-2 text-center"><div class="font-medium">☕ Kopi O (1 cawan)</div><div class="text-purple-600">~5 kcal</div></div>
-                </div>
-              </div>
-            </div>
-
-            <div id="custom-total-display" class="hidden text-center p-3 bg-purple-50 rounded-xl">
-              <span class="text-purple-700 font-medium">Jumlah Kalori: </span>
-              <span id="custom-total-calories" class="text-purple-800 font-bold text-lg">0 kcal</span>
-            </div>
-          </form>
-        </div>
-
-        <!-- daily calories summary -->
-        <div class="bg-gradient-to-r from-green-100 to-purple-100 rounded-2xl p-6 mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Ringkasan Kalori Hari Ini</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div>
-              <div class="text-2xl font-bold text-green-600" id="total-calories">0</div>
-              <div class="text-sm text-gray-600">Kalori Diambil</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-purple-600">2000</div>
-              <div class="text-sm text-gray-600">Sasaran Harian</div>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-blue-600" id="remaining-calories">2000</div>
-              <div class="text-sm text-gray-600">Baki Kalori</div>
-            </div>
-          </div>
-
-          <div class="mt-4">
-            <div class="w-full bg-gray-200 rounded-full h-3">
-              <div id="calorie-progress" class="progress-bar h-3 rounded-full" style="width:0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- diet types -->
-        <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">🥗 Jenis Diet Popular</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="border border-gray-200 rounded-xl p-4"><h4 class="font-bold mb-2">Intermittent Fasting</h4><p class="text-sm text-gray-600">Makan dalam window masa 8 jam, puasa 16 jam</p></div>
-            <div class="border border-gray-200 rounded-xl p-4"><h4 class="font-bold mb-2">OMAD</h4><p class="text-sm text-gray-600">One Meal A Day - satu hidangan sahaja sehari</p></div>
-            <div class="border border-gray-200 rounded-xl p-4"><h4 class="font-bold mb-2">Diet Seimbang</h4><p class="text-sm text-gray-600">Kombinasi karbohidrat, protein dan sayuran</p></div>
-          </div>
-        </div>
-
-        <!-- recipes -->
-        <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">🍳 Resepi Sihat Hari Ini</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white rounded-xl p-4">
-              <h4 class="font-bold mb-2">Salad Quinoa Mediterranean</h4>
-              <p class="text-sm text-gray-600 mb-3">Quinoa, tomato cherry, timun, olive oil - 320 kcal</p>
-              <a href="https://cookpad.com/eng" target="_blank" class="btn-primary text-white px-4 py-2 rounded-full text-sm">Resepi Sihat</a>
+            <div class="bg-white rounded-xl p-4 shadow">
+              <h4 class="font-semibold mb-2">Senaman Kardio</h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Berjalan 30 min</li><li>• Jogging 20 min</li><li>• Berbasikal 45 min</li>
+              </ul>
             </div>
-            <div class="bg-white rounded-xl p-4">
-              <h4 class="font-bold mb-2">Sup Sayuran Protein</h4>
-              <p class="text-sm text-gray-600 mb-3">Tauhu, sayuran campur, kuah clear - 180 kcal</p>
-              <a href="https://cookpad.com/eng" target="_blank" class="btn-primary text-white px-4 py-2 rounded-full text-sm">Resepi Sihat</a>
+            <div class="bg-white rounded-xl p-4 shadow">
+              <h4 class="font-semibold mb-2">Senaman Kekuatan</h4>
+              <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Push-up 3x10</li><li>• Squat 3x15</li><li>• Plank 30s</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-xl p-4">
+            <h4 class="font-semibold mb-2">Aplikasi Disyorkan</h4>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <a href="https://fit.google.com" target="_blank" class="bg-white rounded-lg p-3 text-center">Google Fit</a>
+              <a href="https://www.nike.com/ntc-app" target="_blank" class="bg-white rounded-lg p-3 text-center">Nike Training</a>
+              <a href="https://www.strava.com" target="_blank" class="bg-white rounded-lg p-3 text-center">Strava</a>
+              <a href="https://jomrun.com" target="_blank" class="bg-white rounded-lg p-3 text-center">JomRun</a>
             </div>
           </div>
         </div>
 
-        <div class="text-center mt-6">
-          <button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button>
-        </div>
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
       </div>
     </section>
 
-    <!-- MENTAL HEALTH -->
-    <section id="mental-health-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">🧠 Kesihatan Mental</h2>
-          <p class="text-gray-600">Ujian dan sokongan untuk kesihatan mental anda</p>
-        </div>
+    <!-- Calories -->
+    <section id="calories" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">🍎 Kalori & Diet</h2>
+        <p class="text-sm text-gray-600 mb-4">Tambah makanan preset atau custom, jejak jumlah kalori harian.</p>
 
-        <div class="bg-gradient-to-r from-green-100 to-purple-100 rounded-2xl p-6 text-center mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">🔍 Ujian Kendiri</h3>
-          <p class="text-gray-600 mb-4">Lakukan ujian kesihatan mental rasmi dari Kementerian Kesihatan Malaysia</p>
-          <a href="https://mentari.moh.gov.my/self-test/" target="_blank" class="btn-primary">Mula Ujian Kendiri</a>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">📝 Masukkan Keputusan Ujian DASS-21</h3>
-          <form id="mental-health-form" class="space-y-6">
-            <div class="p-4 bg-blue-50 rounded-xl">
-              <h4 class="font-semibold text-blue-800 mb-3">😰 Anxiety (Kebimbangan)</h4>
-              <label class="block text-sm text-gray-700 mb-2">Tahap Anxiety</label>
-              <select id="anxiety-level" class="w-full px-4 py-3 rounded-2xl border border-gray-300">
-                <option value="">Pilih tahap anxiety...</option>
-                <option value="normal">Normal (0-7)</option>
-                <option value="ringan">Ringan (8-9)</option>
-                <option value="sederhana">Sederhana (10-14)</option>
-                <option value="teruk">Teruk (15-19)</option>
-                <option value="sangat-teruk">Sangat Teruk (20+)</option>
-              </select>
-            </div>
-
-            <div class="p-4 bg-purple-50 rounded-xl">
-              <h4 class="font-semibold text-purple-800 mb-3">😔 Depression (Kemurungan)</h4>
-              <label class="block text-sm text-gray-700 mb-2">Tahap Depression</label>
-              <select id="depression-level" class="w-full px-4 py-3 rounded-2xl border border-gray-300">
-                <option value="">Pilih tahap depression...</option>
-                <option value="normal">Normal (0-9)</option>
-                <option value="ringan">Ringan (10-13)</option>
-                <option value="sederhana">Sederhana (14-20)</option>
-                <option value="teruk">Teruk (21-27)</option>
-                <option value="sangat-teruk">Sangat Teruk (28+)</option>
-              </select>
-            </div>
-
-            <div class="p-4 bg-red-50 rounded-xl">
-              <h4 class="font-semibold text-red-800 mb-3">😤 Stress (Tekanan)</h4>
-              <label class="block text-sm text-gray-700 mb-2">Tahap Stress</label>
-              <select id="stress-level" class="w-full px-4 py-3 rounded-2xl border border-gray-300">
-                <option value="">Pilih tahap stress...</option>
-                <option value="normal">Normal (0-14)</option>
-                <option value="ringan">Ringan (15-18)</option>
-                <option value="sederhana">Sederhana (19-25)</option>
-                <option value="teruk">Teruk (26-33)</option>
-                <option value="sangat-teruk">Sangat Teruk (34+)</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn-primary w-full">Simpan Keputusan & Dapatkan Cadangan</button>
-          </form>
-        </div>
-
-        <div id="mental-health-results" class="hidden mb-6"></div>
-
-        <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6 mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">💝 Kata-kata Motivasi</h3>
-          <div class="relative">
-            <div id="quote-container" class="text-center p-4 bg-white rounded-xl shadow-sm">
-              <p id="current-quote" class="text-gray-700 italic text-lg mb-2"></p>
-            </div>
-            <div class="flex justify-center mt-4 space-x-2">
-              <button onclick="previousQuote()" class="bg-white rounded-full p-2 shadow-md">←</button>
-              <button onclick="nextQuote()" class="bg-white rounded-full p-2 shadow-md">→</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🎵 Aktiviti Menenangkan</h3>
-            <ul class="space-y-3 text-gray-600">
-              <li class="flex items-center space-x-2"><span>🎶</span><span>Dengar muzik tenang</span></li>
-              <li class="flex items-center space-x-2"><span>🧩</span><span>Permainan minda</span></li>
-              <li class="flex items-center space-x-2"><span>📝</span><span>Tulis jurnal harian</span></li>
-              <li class="flex items-center space-x-2"><span>🧘</span><span>Meditasi 10 minit</span></li>
-            </ul>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🆘 Talian Bantuan</h3>
-            <div class="space-y-3">
-              <div class="p-3 bg-red-50 rounded-xl">
-                <div class="font-bold text-red-800">Talian HEAL</div>
-                <div class="text-red-600">15555</div>
-                <div class="text-sm text-red-600">24 jam, percuma</div>
-              </div>
-              <div class="p-3 bg-blue-50 rounded-xl">
-                <div class="font-bold text-blue-800">Befrienders</div>
-                <div class="text-blue-600">03-7627 2929</div>
-                <div class="text-sm text-blue-600">24 jam, sokongan emosi</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="col-span-1 md:col-span-2 bg-white rounded-xl p-4 shadow">
+            <div class="mb-3">
+              <div class="flex gap-2">
+                <button class="px-4 py-2 rounded-full bg-green-500 text-white" onclick="setFoodMode('preset')">Preset</button>
+                <button class="px-4 py-2 rounded-full border" onclick="setFoodMode('custom')">Custom</button>
               </div>
             </div>
+
+            <form id="food-form" class="space-y-3">
+              <div id="mode-preset">
+                <label class="block text-sm font-medium text-gray-700">Makanan Preset</label>
+                <select id="preset-food" class="w-full rounded-xl p-3 border">
+                  <option value="">Pilih...</option>
+                  <option value="Nasi Lemak|644">Nasi Lemak — 644 kcal</option>
+                  <option value="Teh Susu|150">Teh Susu — 150 kcal</option>
+                  <option value="Nasi Goreng|450">Nasi Goreng — 450 kcal</option>
+                  <option value="Roti Canai|301">Roti Canai — 301 kcal</option>
+                </select>
+                <div class="mt-2 flex gap-2 items-center">
+                  <label class="text-sm">Bahagian</label>
+                  <input id="preset-portion" type="number" value="1" step="0.5" class="px-3 py-2 w-32 rounded-xl border"/>
+                  <button class="btn-grad" onclick="addPresetFood(event)">Tambah</button>
+                </div>
+              </div>
+
+              <div id="mode-custom" class="hidden">
+                <label class="block text-sm font-medium text-gray-700">Makanan Custom</label>
+                <input id="custom-name" type="text" placeholder="Nama Makanan" class="w-full rounded-xl p-3 border"/>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                  <input id="custom-cal" type="number" placeholder="Kalori (kcal)" class="rounded-xl p-3 border"/>
+                  <input id="custom-portion" type="number" placeholder="Bahagian" value="1" step="0.5" class="rounded-xl p-3 border"/>
+                </div>
+                <div class="mt-2"><button class="btn-grad" onclick="addCustomFood()">Tambah Custom</button></div>
+              </div>
+            </form>
+          </div>
+
+          <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-xl p-4 shadow">
+            <h4 class="font-semibold mb-2">Ringkasan Hari Ini</h4>
+            <div class="text-2xl font-bold text-green-700" id="cal-total">0 kcal</div>
+            <div class="text-sm text-gray-600">Sasaran: 2000 kcal</div>
+            <div class="mt-3 w-full h-3 bg-gray-200 rounded-full overflow-hidden"><div id="cal-bar" class="progress-gradient h-full" style="width:0%"></div></div>
+            <div class="mt-2 text-sm text-gray-700" id="cal-remaining">Baki: 2000 kcal</div>
           </div>
         </div>
 
-        <div class="text-center mt-6">
-          <button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button>
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
+      </div>
+    </section>
+
+    <!-- Mental -->
+    <section id="mental" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">🧠 Kesihatan Mental</h2>
+        <p class="text-sm text-gray-600 mb-4">Ujian kendiri & cadangan sokongan.</p>
+
+        <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-xl p-4 mb-4">
+          <a href="https://mentari.moh.gov.my/self-test/" target="_blank" class="btn-grad">Mula Ujian Kendiri (KKM)</a>
         </div>
+
+        <form id="mental-form" class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="text-sm">Anxiety</label>
+              <select id="m_anxiety" class="w-full rounded-xl p-2 border">
+                <option value="">Pilih...</option>
+                <option value="normal">Normal</option><option value="ringan">Ringan</option><option value="sederhana">Sederhana</option><option value="teruk">Teruk</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm">Depression</label>
+              <select id="m_dep" class="w-full rounded-xl p-2 border">
+                <option value="">Pilih...</option><option value="normal">Normal</option><option value="ringan">Ringan</option><option value="sederhana">Sederhana</option><option value="teruk">Teruk</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-sm">Stress</label>
+              <select id="m_stress" class="w-full rounded-xl p-2 border">
+                <option value="">Pilih...</option><option value="normal">Normal</option><option value="ringan">Ringan</option><option value="sederhana">Sederhana</option><option value="teruk">Teruk</option>
+              </select>
+            </div>
+          </div>
+          <div><button class="btn-grad" onclick="saveMental(event)">Simpan Keputusan</button></div>
+        </form>
+
+        <div id="mental-result" class="mt-4 hidden p-3 rounded-xl bg-white shadow-sm"></div>
+
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
       </div>
     </section>
 
     <!-- MBTI -->
-    <section id="mbti-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-4xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">🧬 Personaliti MBTI</h2>
-          <p class="text-gray-600">Kenali personaliti anda dan dapatkan cadangan gaya hidup sesuai</p>
+    <section id="mbti" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">🧬 Personaliti MBTI</h2>
+        <p class="text-sm text-gray-600 mb-4">Ujian MBTI & cadangan gaya hidup.</p>
+
+        <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-xl p-4 mb-4">
+          <a href="https://www.16personalities.com/free-personality-test" target="_blank" class="btn-grad">Mula Ujian MBTI</a>
         </div>
 
-        <div class="bg-gradient-to-r from-green-100 to-purple-100 rounded-2xl p-6 text-center mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">🔍 Ujian Personaliti MBTI</h3>
-          <p class="text-gray-600 mb-4">Lakukan ujian personaliti rasmi untuk mengetahui jenis MBTI anda</p>
-          <a href="https://www.16personalities.com/free-personality-test" target="_blank" class="btn-primary">Mula Ujian MBTI</a>
-        </div>
+        <form id="mbti-form" class="space-y-3">
+          <label class="text-sm">Jenis MBTI</label>
+          <select id="mbti-type" class="w-full rounded-xl p-3 border">
+            <option value="">Pilih...</option>
+            <option value="INFP">INFP</option><option value="INTJ">INTJ</option><option value="ENFP">ENFP</option><option value="ESTJ">ESTJ</option>
+          </select>
+          <div><button class="btn-grad" onclick="saveMBTI(event)">Simpan MBTI</button></div>
+        </form>
 
-        <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4">📝 Masukkan Keputusan MBTI</h3>
-          <form id="mbti-form" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Jenis MBTI Anda</label>
-              <select id="mbti-type" class="w-full px-4 py-3 rounded-2xl border border-gray-300">
-                <option value="">Pilih jenis MBTI...</option>
-                <option value="INTJ">INTJ - The Architect</option>
-                <option value="INTP">INTP - The Thinker</option>
-                <option value="ENTJ">ENTJ - The Commander</option>
-                <option value="ENTP">ENTP - The Debater</option>
-                <option value="INFJ">INFJ - The Advocate</option>
-                <option value="INFP">INFP - The Mediator</option>
-                <option value="ENFJ">ENFJ - The Protagonist</option>
-                <option value="ENFP">ENFP - The Campaigner</option>
-                <option value="ISTJ">ISTJ - The Logistician</option>
-                <option value="ISFJ">ISFJ - The Protector</option>
-                <option value="ESTJ">ESTJ - The Executive</option>
-                <option value="ESFJ">ESFJ - The Consul</option>
-                <option value="ISTP">ISTP - The Virtuoso</option>
-                <option value="ISFP">ISFP - The Adventurer</option>
-                <option value="ESTP">ESTP - The Entrepreneur</option>
-                <option value="ESFP">ESFP - The Entertainer</option>
-              </select>
-            </div>
-            <button type="submit" class="btn-primary w-full">Simpan MBTI</button>
-          </form>
-        </div>
-
-        <div id="mbti-recommendations" class="hidden">
-          <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6 mb-6">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 Cadangan Gaya Hidup</h3>
-            <div id="mbti-lifestyle-content"></div>
-          </div>
-
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">💪 Senaman Sesuai</h3>
-            <div id="mbti-exercise-content"></div>
-          </div>
-        </div>
-
-        <div class="text-center mt-6">
-          <button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button>
-        </div>
+        <div id="mbti-result" class="mt-4 hidden p-3 rounded-xl bg-white shadow-sm"></div>
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
       </div>
     </section>
 
-    <!-- NCD INFO -->
-    <section id="ncd-info-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-6xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">❤️ Maklumat NCD</h2>
-          <p class="text-gray-600">Penyakit Tidak Berjangkit - Punca, Kesan & Pencegahan</p>
-          <p class="text-sm text-gray-500 mt-2">Sumber: Kementerian Kesihatan Malaysia, WHO, Jabatan Kesihatan Negeri Selangor, NHMS 2023</p>
-        </div>
+    <!-- NCD Info -->
+    <section id="ncd" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-5xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">❤️ Maklumat NCD</h2>
+        <p class="text-sm text-gray-600 mb-4">Punca, kesan & pencegahan penyakit tidak berjangkit.</p>
 
-        <!-- Stats banner -->
-        <div class="bg-gradient-to-r from-red-100 to-orange-100 rounded-2xl p-6 mb-8 border-l-4 border-red-500">
-          <h3 class="text-xl font-bold text-red-800 mb-3">🚨 Statistik Kritikal Malaysia (NHMS 2023)</h3>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-            <div class="bg-white rounded-xl p-4"><div class="text-2xl font-bold text-red-600">73%</div><div class="text-sm text-gray-600">Kematian akibat NCD</div></div>
-            <div class="bg-white rounded-xl p-4"><div class="text-2xl font-bold text-orange-600">3.9 juta</div><div class="text-sm text-gray-600">Pesakit diabetes</div></div>
-            <div class="bg-white rounded-xl p-4"><div class="text-2xl font-bold text-purple-600">6.4 juta</div><div class="text-sm text-gray-600">Pesakit hipertensi</div></div>
-            <div class="bg-white rounded-xl p-4"><div class="text-2xl font-bold text-yellow-600">RM9.65b</div><div class="text-sm text-gray-600">Kos rawatan NCD</div></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-r from-red-100 to-orange-100 rounded-xl p-4">
+            <h3 class="font-semibold">Statistik (contoh)</h3>
+            <div class="mt-2 text-sm text-gray-700">• 3.9 juta pesakit diabetes (contoh data)</div>
+            <div class="mt-1 text-sm text-gray-700">• 6.4 juta hipertensi</div>
+          </div>
+
+          <div class="bg-white rounded-xl p-4 shadow">
+            <h3 class="font-semibold">Tips Pencegahan</h3>
+            <ul class="text-sm text-gray-700 mt-2">
+              <li>• Diet seimbang</li><li>• Senaman teratur</li><li>• Pemeriksaan berkala</li>
+            </ul>
           </div>
         </div>
 
-        <!-- NCD cards grid shortened for brevity (full info exists visually) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <!-- Diabetes -->
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <div class="flex items-center mb-4"><span class="text-3xl mr-3">🩸</span><h3 class="text-xl font-bold">Diabetes Mellitus</h3></div>
-            <div class="space-y-4">
-              <div><h4 class="font-semibold text-red-600 mb-2">Punca Utama:</h4>
-                <ul class="text-sm text-gray-600 space-y-1"><li>• Resistensi insulin</li><li>• Faktor genetik</li><li>• Obesiti (BMI ≥30)</li></ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Hypertension -->
-          <div class="bg-white rounded-2xl p-6 shadow-md">
-            <div class="flex items-center mb-4"><span class="text-3xl mr-3">💓</span><h3 class="text-xl font-bold">Hipertensi</h3></div>
-            <div class="space-y-4">
-              <div><h4 class="font-semibold text-red-600 mb-2">Faktor Risiko:</h4>
-                <ul class="text-sm text-gray-600 space-y-1"><li>• Pengambilan natrium tinggi</li><li>• Kurang aktiviti fizikal</li></ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- other cards could be added similarly -->
-        </div>
-
-        <div class="bg-gradient-to-r from-green-50 to-purple-50 rounded-2xl p-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">🛡️ Tips Pencegahan Umum</h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="text-center p-4 bg-white rounded-xl"><div class="text-2xl mb-2">🥗</div><div class="font-medium">Diet Seimbang</div><div class="text-sm text-gray-600">Sayuran, buah-buahan, protein sihat</div></div>
-            <div class="text-center p-4 bg-white rounded-xl"><div class="text-2xl mb-2">🏃</div><div class="font-medium">Senaman Teratur</div><div class="text-sm text-gray-600">150 minit seminggu</div></div>
-            <div class="text-center p-4 bg-white rounded-xl"><div class="text-2xl mb-2">🚭</div><div class="font-medium">Berhenti Merokok</div><div class="text-sm text-gray-600">Kurangkan risiko drastik</div></div>
-            <div class="text-center p-4 bg-white rounded-xl"><div class="text-2xl mb-2">🩺</div><div class="font-medium">Pemeriksaan Berkala</div><div class="text-sm text-gray-600">Kesan awal, rawat cepat</div></div>
-          </div>
-        </div>
-
-        <div class="text-center mt-6"><button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button></div>
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
       </div>
     </section>
 
-    <!-- DASHBOARD -->
-    <section id="dashboard-section" class="hidden">
-      <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-lg max-w-6xl mx-auto">
-        <div class="text-center mb-8">
-          <h2 class="text-3xl font-bold text-gray-800 mb-4">📊 Dashboard Saya</h2>
-          <p class="text-gray-600">Ringkasan kemajuan kesihatan peribadi anda</p>
-        </div>
+    <!-- Dashboard -->
+    <section id="dashboard" class="hidden">
+      <div class="bg-white/90 p-8 rounded-2xl shadow-md max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold mb-2">📊 Dashboard Saya</h2>
+        <p class="text-sm text-gray-600 mb-4">Ringkasan data yang disimpan pada pelayar (localStorage).</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-6 text-center">
-            <div class="text-2xl mb-2">⚖️</div>
-            <div class="text-sm text-gray-600 mb-1">BMI Terkini</div>
-            <div class="text-2xl font-bold text-green-700" id="dashboard-bmi">-</div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+          <div class="p-4 rounded-xl bg-gradient-to-br from-green-100 to-green-200 text-center">
+            <div class="text-sm">BMI Terkini</div>
+            <div id="db-bmi" class="font-bold text-2xl">-</div>
           </div>
-          <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-6 text-center">
-            <div class="text-2xl mb-2">🏃</div>
-            <div class="text-sm text-gray-600 mb-1">Langkah Hari Ini</div>
-            <div class="text-2xl font-bold text-purple-700" id="dashboard-steps">-</div>
+          <div class="p-4 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 text-center">
+            <div class="text-sm">Langkah</div>
+            <div id="db-steps" class="font-bold text-2xl">-</div>
           </div>
-          <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-6 text-center">
-            <div class="text-2xl mb-2">🍎</div>
-            <div class="text-sm text-gray-600 mb-1">Kalori Hari Ini</div>
-            <div class="text-2xl font-bold text-blue-700" id="dashboard-calories">-</div>
+          <div class="p-4 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-center">
+            <div class="text-sm">Kalori Hari Ini</div>
+            <div id="db-cal" class="font-bold text-2xl">-</div>
           </div>
-          <div class="bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl p-6 text-center">
-            <div class="text-2xl mb-2">🧠</div>
-            <div class="text-sm text-gray-600 mb-1">Kesihatan Mental</div>
-            <div class="text-lg font-bold text-pink-700" id="dashboard-mental">-</div>
+          <div class="p-4 rounded-xl bg-gradient-to-br from-pink-100 to-pink-200 text-center">
+            <div class="text-sm">Mental</div>
+            <div id="db-mental" class="font-bold text-2xl">-</div>
           </div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-md mb-6">
-          <h3 class="text-xl font-bold text-gray-800 mb-6">📋 Ringkasan Kesihatan Komprehensif</h3>
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="space-y-4">
-              <h4 class="font-semibold text-gray-700 border-b pb-2">🩺 Kesihatan Fizikal</h4>
-              <div id="physical-health-summary" class="space-y-3 text-sm text-gray-600">
-                <div class="text-center py-4 text-gray-500">Tiada data kesihatan fizikal. Lakukan semakan kesihatan untuk melihat ringkasan.</div>
-              </div>
-            </div>
+        <div id="db-details" class="bg-white rounded-xl p-4 shadow text-sm text-gray-700">Tiada data lagi. Gunakan modul semakan untuk mula.</div>
 
-            <div class="space-y-4">
-              <h4 class="font-semibold text-gray-700 border-b pb-2">🏃 Aktiviti & Pemakanan</h4>
-              <div id="activity-nutrition-summary" class="space-y-3 text-sm text-gray-600">
-                <div class="text-center py-4 text-gray-500">Tiada data aktiviti. Jejak langkah dan kalori untuk melihat kemajuan.</div>
-              </div>
-            </div>
-
-            <div class="space-y-4">
-              <h4 class="font-semibold text-gray-700 border-b pb-2">🧠 Kesihatan Mental</h4>
-              <div id="mental-health-summary" class="space-y-3 text-sm text-gray-600 ">
-                <div class="text-center py-4 text-gray-500">Tiada data kesihatan mental.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center mt-6"><button onclick="showSection('home')" class="text-gray-600 hover:text-gray-800 font-medium">← Kembali ke Laman Utama</button></div>
+        <div class="mt-6 text-center"><button onclick="show('home')" class="text-gray-600">← Kembali</button></div>
       </div>
     </section>
 
-  </div>
+  </main>
 
-  <footer class="text-center text-sm text-gray-500 py-8">🌿 Healio © 2025 — Hidup Lebih Sihat & Bahagia</footer>
+  <footer class="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500 pb-8">🌿 Healio © 2025</footer>
 
-  <!-- SCRIPTS: UI logic, storage, anims -->
   <script>
-    /* -----------------------------
-       Utility & initialisation
-       ----------------------------- */
-    function $(id){ return document.getElementById(id); }
-    function showSection(id){
-      // hide all sections
-      document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-      const map = {
-        'home':'home-section','health-check':'health-check-section','exercise':'exercise-section','calories':'calories-section',
-        'mental-health':'mental-health-section','mbti':'mbti-section','ncd-info':'ncd-info-section','dashboard':'dashboard-section'
-      };
-      const sel = map[id] || map['home'];
-      $(sel).classList.remove('hidden');
-      // smooth scroll top
-      window.scrollTo({top:0, behavior:'smooth'});
-      // update dashboard if showing
-      if(sel === 'dashboard-section') updateDashboard();
+    /* ----------------------------
+       Helper functions & UI
+       ---------------------------- */
+    const sections = ['home','health','exercise','calories','mental','mbti','ncd','dashboard'];
+    function show(id){
+      sections.forEach(s => document.getElementById(s).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      window.scrollTo({top:0,behavior:'smooth'});
+      if(id==='dashboard') refreshDashboard();
+    }
+    function toggleMobileMenu(){
+      const m = document.getElementById('mobile-menu');
+      m.classList.toggle('hidden');
     }
 
     // create decorative bubbles
-    function createBubbles(){
-      const container = $('bubbles');
-      container.innerHTML = '';
-      const sizes = [90,70,120,50,140,40,100,60];
+    function initBubbles(){
+      const wrap = document.getElementById('bubble-wrap');
+      const sizes = [120,90,160,70,50,130,100,60];
+      wrap.innerHTML = '';
       for(let i=0;i<8;i++){
         const b = document.createElement('div');
-        b.className = 'floating-bubble';
-        const w = sizes[i%sizes.length];
-        b.style.width = w + 'px';
-        b.style.height = w + 'px';
-        b.style.left = (Math.random()*100) + '%';
-        b.style.top = (Math.random()*100) + '%';
-        b.style.opacity = 0.25 + Math.random()*0.6;
-        b.style.filter = 'blur(' + (2+Math.random()*6) + 'px)';
-        b.style.animation = 'bubble ' + (6 + Math.random()*8) + 's linear ' + (Math.random()*2) + 's infinite';
-        container.appendChild(b);
+        b.className = 'bubble';
+        const s = sizes[i%sizes.length];
+        b.style.width = s+'px'; b.style.height = s+'px';
+        b.style.left = (Math.random()*100)+'%';
+        b.style.top = (Math.random()*100)+'%';
+        b.style.animationDuration = (8 + Math.random()*8) + 's';
+        b.style.animationDelay = (Math.random()*3)+'s';
+        wrap.appendChild(b);
       }
     }
 
-    /* -----------------------------
-       Health form: BMI calculate
-       ----------------------------- */
-    document.getElementById('health-form').addEventListener('submit', function(e){
+    /* ----------------------------
+       HEALTH Form (BMI)
+       ---------------------------- */
+    document.getElementById('form-health').addEventListener('submit', function(e){
       e.preventDefault();
-      const name = $('name').value.trim();
-      const age = parseInt($('age').value,10);
-      const job = $('job').value.trim();
-      const height = parseFloat($('height').value);
-      const weight = parseFloat($('weight').value);
-      const bp = $('blood-pressure').value.trim();
-      const sugar = $('blood-sugar').value.trim();
+      const name = document.getElementById('h_name').value || '';
+      const age = parseInt(document.getElementById('h_age').value) || '';
+      const height = parseFloat(document.getElementById('h_height').value);
+      const weight = parseFloat(document.getElementById('h_weight').value);
+      const bp = document.getElementById('h_bp').value || '';
+      const sugar = document.getElementById('h_sugar').value || '';
 
       if(!height || !weight){ alert('Sila isi tinggi & berat'); return; }
       const bmi = weight / ((height/100)**2);
-      let status='';
-      if(bmi < 18.5) status='Kurus';
-      else if(bmi < 25) status='Sihat';
-      else if(bmi < 30) status='Sederhana';
-      else status='Berisiko Tinggi';
+      let status = '';
+      if(bmi < 18.5) status='Kurus'; else if(bmi < 25) status='Sihat'; else if(bmi < 30) status='Sederhana'; else status='Berisiko Tinggi';
 
-      const resultsHTML = `
+      const resDiv = document.getElementById('health-result');
+      resDiv.classList.remove('hidden');
+      resDiv.innerHTML = `
         <div class="grid md:grid-cols-2 gap-4">
           <div>
-            <h4 class="font-semibold text-gray-700">Keputusan:</h4>
-            <p class="mt-2">Nama: <b>${escapeHtml(name||'-')}</b></p>
-            <p>Umur: <b>${age||'-'}</b></p>
+            <h3 class="font-semibold">Keputusan</h3>
+            <p class="mt-2">Nama: <b>${escape(name)}</b></p>
+            <p>Umur: <b>${escape(age)}</b></p>
             <p>Tinggi: <b>${height} cm</b></p>
             <p>Berat: <b>${weight} kg</b></p>
             <p class="mt-2">BMI: <b>${bmi.toFixed(1)}</b></p>
             <p>Status: <b style="color:#7c3aed">${status}</b></p>
           </div>
           <div>
-            <h4 class="font-semibold text-gray-700">Cadangan:</h4>
-            <ul class="list-disc pl-5 mt-2 text-sm text-gray-700">
-              ${getHealthRecommendations(status)}
+            <h3 class="font-semibold">Cadangan</h3>
+            <ul class="list-disc pl-5 mt-2 text-sm">
+              ${getRecommendationsHtml(status)}
             </ul>
-            ${status === 'Berisiko Tinggi' ? `<div class="mt-3 p-3 bg-red-50 rounded-lg">⚠️ Keputusan menunjukkan risiko tinggi. Sila dapatkan pemeriksaan kesihatan. <br/><a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="text-blue-600 underline">Cari fasiliti berdekatan</a></div>` : ''}
+            ${status==='Berisiko Tinggi' ? `<div class="mt-3 p-3 bg-red-50 rounded">⚠️ Keputusan menunjukkan risiko tinggi. Sila dapatkan pemeriksaan kesihatan. <a href="https://www.google.com/maps/search/hospital+near+me" target="_blank" class="text-blue-600 underline">Cari fasiliti berdekatan</a></div>` : ''}
           </div>
         </div>
       `;
 
-      $('health-results').innerHTML = resultsHTML;
-      $('health-results').classList.remove('hidden');
-
-      // store profile in localStorage
-      const profile = { name, age, job, height, weight, bp, sugar, bmi: bmi.toFixed(1), status };
+      // save to localStorage
+      const profile = { name, age, height, weight, bp, sugar, bmi: bmi.toFixed(1), status, updated: new Date().toISOString() };
       localStorage.setItem('healio_profile', JSON.stringify(profile));
-
-      // update dashboard quick stats
-      updateDashboard();
-      // navigate to results (scroll)
-      window.scrollTo({ top: $('health-results').offsetTop - 50, behavior: 'smooth' });
+      refreshDashboard();
     });
 
-    function getHealthRecommendations(status){
-      if(status === 'Sihat'){
-        return `<li>Teruskan gaya hidup aktif</li><li>Amalkan diet seimbang</li><li>Saring tekanan darah & gula setiap tahun</li>`;
-      } else if(status === 'Kurus'){
-        return `<li>Tambah kalori berkualiti (protein & lemak sihat)</li><li>Latihan kekuatan 2-3 kali seminggu</li><li>Rujuk pakar pemakanan jika perlu</li>`;
-      } else if(status === 'Sederhana'){
-        return `<li>Kurangkan pengambilan gula & lemak tepu</li><li>Tingkatkan aktiviti aerobik 150 min/minggu</li><li>Periksa semula selepas 3 bulan</li>`;
-      } else {
-        return `<li>Berjumpa klinik untuk penilaian lanjut</li><li>Pantau gula & tekanan darah kerap</li><li>Mulakan intervensi pemakanan & aktiviti segera</li>`;
-      }
+    function getRecommendationsHtml(status){
+      if(status==='Sihat') return '<li>Teruskan gaya hidup aktif</li><li>Amalkan diet seimbang</li>';
+      if(status==='Kurus') return '<li>Tambah kalori berkualiti</li><li>Latihan kekuatan 2-3x seminggu</li>';
+      if(status==='Sederhana') return '<li>Kurangkan gula & lemak tepu</li><li>Tingkatkan aktiviti aerobik</li>';
+      return '<li>Jumpa klinik untuk penilaian lanjut</li><li>Mulakan intervensi pemakanan & aktiviti</li>';
     }
 
-    // basic XSS escape for inserted values
-    function escapeHtml(str){
-      if(!str) return '';
-      return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-    }
-
-    /* -----------------------------
-       Steps save and progress
-       ----------------------------- */
+    /* ----------------------------
+       Steps saving
+       ---------------------------- */
     function saveSteps(){
-      const steps = parseInt($('daily-steps').value || 0,10);
-      if(isNaN(steps) || steps < 0) { alert('Masukkan nombor langkah yang sah'); return; }
-      localStorage.setItem('healio_steps', steps);
-      updateStepsDisplay();
-      alert('Langkah disimpan!');
+      const v = parseInt(document.getElementById('steps-input').value) || 0;
+      if(v < 0){ alert('Masukkan langkah betul'); return; }
+      localStorage.setItem('healio_steps', v);
+      updateStepsUI();
+      alert('Langkah disimpan');
+    }
+    function updateStepsUI(){
+      const steps = parseInt(localStorage.getItem('healio_steps') || 0);
+      const perc = Math.min(100, Math.round((steps/10000)*100));
+      document.getElementById('steps-bar').style.width = perc + '%';
+      document.getElementById('steps-percent').textContent = perc + '%';
     }
 
-    function updateStepsDisplay(){
-      const steps = parseInt(localStorage.getItem('healio_steps') || 0,10);
-      $('steps-progress').style.width = Math.min(100, (steps/10000)*100) + '%';
-      $('steps-percentage').textContent = Math.min(100, Math.round((steps/10000)*100)) + '%';
-      // dashboard
-      const dbSteps = $('dashboard-steps'); if(dbSteps) dbSteps.textContent = steps;
+    /* ----------------------------
+       Calories handling
+       ---------------------------- */
+    function setFoodMode(mode){
+      if(mode==='preset'){ document.getElementById('mode-preset').classList.remove('hidden'); document.getElementById('mode-custom').classList.add('hidden'); }
+      else { document.getElementById('mode-preset').classList.add('hidden'); document.getElementById('mode-custom').classList.remove('hidden'); }
     }
-
-    /* -----------------------------
-       Food / Calories handling
-       ----------------------------- */
-    function toggleFoodMode(mode){
-      if(mode === 'preset'){
-        $('preset-mode').classList.remove('hidden');
-        $('custom-mode').classList.add('hidden');
-        $('custom-total-display').classList.add('hidden');
-      } else {
-        $('preset-mode').classList.add('hidden');
-        $('custom-mode').classList.remove('hidden');
-      }
-    }
-
-    // parse "label|cal" pattern
-    function parseOptionValue(opt){
-      if(!opt) return 0;
-      const parts = opt.split('|');
-      return parts.length>1 ? parseFloat(parts[1]) : 0;
-    }
-
-    document.getElementById('food-form').addEventListener('submit', function(e){
+    function addPresetFood(e){
       e.preventDefault();
-      // preset mode
-      const opt = $('food-name').value;
-      if(!opt){ alert('Sila pilih makanan preset'); return; }
-      const baseCal = parseOptionValue(opt);
-      const portion = parseFloat($('portion').value) || 1;
-      const addCal = Math.round(baseCal * portion);
-      addCalories(addCal, opt.split('|')[0] || 'Preset');
-      alert('Makanan ditambah (' + addCal + ' kcal)');
-    });
-
-    // custom add
-    $('custom-add-btn').addEventListener('click', function(){
-      const name = $('custom-food-name').value.trim();
-      const cal = parseFloat($('custom-calories').value) || 0;
-      const portion = parseFloat($('custom-portion').value) || 1;
-      if(!name || cal<=0){ alert('Sila masukkan nama makanan dan kalori'); return; }
-      const addCal = Math.round(cal * portion);
-      addCalories(addCal, name);
-      $('custom-total-display').classList.remove('hidden');
-      $('custom-total-calories').textContent = addCal + ' kcal (terakhir)';
-      alert('Custom makanan ditambah ('+addCal+' kcal)');
-    });
-
-    function addCalories(amount, label){
-      const today = new Date().toISOString().slice(0,10);
-      // storage structure: { date: 'YYYY-MM-DD', total: n, entries: [...] }
-      let data = JSON.parse(localStorage.getItem('healio_calories') || 'null');
-      if(!data || data.date !== today){ data = { date: today, total: 0, entries: [] }; }
-      data.total += amount;
-      data.entries.push({ label, amount, time: new Date().toISOString() });
-      localStorage.setItem('healio_calories', JSON.stringify(data));
-      updateCaloriesDisplay();
-      updateDashboard();
+      const sel = document.getElementById('preset-food').value;
+      if(!sel){ alert('Pilih makanan'); return; }
+      const portion = parseFloat(document.getElementById('preset-portion').value) || 1;
+      const parts = sel.split('|');
+      const cal = parseFloat(parts[1]) || 0;
+      const totalAdd = Math.round(cal * portion);
+      storeCalorie(totalAdd, parts[0]);
+      alert('Ditambah: ' + totalAdd + ' kcal');
     }
-
-    function updateCaloriesDisplay(){
-      const data = JSON.parse(localStorage.getItem('healio_calories') || 'null');
+    function addCustomFood(){
+      const name = document.getElementById('custom-name').value || 'Custom';
+      const cal = parseFloat(document.getElementById('custom-cal').value) || 0;
+      const portion = parseFloat(document.getElementById('custom-portion').value) || 1;
+      if(cal <= 0){ alert('Masukkan kalori yang sah'); return; }
+      const add = Math.round(cal * portion);
+      storeCalorie(add, name);
+      alert('Custom ditambah: ' + add + ' kcal');
+    }
+    function storeCalorie(amount,label){
+      const today = new Date().toISOString().slice(0,10);
+      let data = JSON.parse(localStorage.getItem('healio_cal') || 'null');
+      if(!data || data.date !== today) data = { date: today, total: 0, entries: [] };
+      data.total += amount; data.entries.push({ label, amount, time: new Date().toISOString() });
+      localStorage.setItem('healio_cal', JSON.stringify(data));
+      updateCaloriesUI();
+    }
+    function updateCaloriesUI(){
+      const data = JSON.parse(localStorage.getItem('healio_cal') || 'null');
       const total = (data && data.total) ? data.total : 0;
       const target = 2000;
-      $('total-calories').textContent = total;
-      $('remaining-calories').textContent = Math.max(0, target - total);
       const perc = Math.min(100, Math.round((total/target)*100));
-      $('calorie-progress').style.width = perc + '%';
-      // dashboard
-      const dbCal = $('dashboard-calories'); if(dbCal) dbCal.textContent = total;
+      document.getElementById('cal-total').textContent = total + ' kcal';
+      document.getElementById('cal-bar').style.width = perc + '%';
+      document.getElementById('cal-remaining').textContent = 'Baki: ' + Math.max(0, target - total) + ' kcal';
     }
 
-    /* -----------------------------
-       Mental form handling & quotes
-       ----------------------------- */
-    const quotes = [
-      "Kesihatan mental sama penting dengan fizikal 💖",
-      "Ambil masa untuk diri sendiri 🌸",
-      "Jangan takut untuk minta bantuan 🤝",
-      "Rehat bukan tanda lemah 🌙",
-      "Setiap hari adalah peluang baru 🌅"
-    ];
-    let qIndex = 0;
-    function nextQuote(){ qIndex = (qIndex+1)%quotes.length; renderQuote(); }
-    function previousQuote(){ qIndex = (qIndex-1+quotes.length)%quotes.length; renderQuote(); }
-    function renderQuote(){ $('current-quote').textContent = quotes[qIndex]; }
-    renderQuote();
-
-    document.getElementById('mental-health-form').addEventListener('submit', function(e){
+    /* ----------------------------
+       Mental save
+       ---------------------------- */
+    function saveMental(e){
       e.preventDefault();
-      const anxiety = $('anxiety-level').value || 'normal';
-      const depression = $('depression-level').value || 'normal';
-      const stress = $('stress-level').value || 'normal';
-      const result = { anxiety, depression, stress, date: new Date().toISOString() };
-      localStorage.setItem('healio_mental', JSON.stringify(result));
-      renderMentalResults(result);
-      updateDashboard();
-      alert('Keputusan disimpan. Lihat cadangan di bawah.');
+      const anxiety = document.getElementById('m_anxiety').value || 'normal';
+      const dep = document.getElementById('m_dep').value || 'normal';
+      const stress = document.getElementById('m_stress').value || 'normal';
+      const obj = { anxiety, dep, stress, date: new Date().toISOString() };
+      localStorage.setItem('healio_mental', JSON.stringify(obj));
+      document.getElementById('mental-result').classList.remove('hidden');
+      document.getElementById('mental-result').innerHTML = `<b>Keputusan disimpan</b><div class="mt-2 text-sm">Anxiety: ${anxiety} • Depression: ${dep} • Stress: ${stress}</div>`;
+      refreshDashboard();
+      alert('Keputusan mental disimpan');
+    }
+
+    /* ----------------------------
+       MBTI save
+       ---------------------------- */
+    function saveMBTI(e){
+      e.preventDefault();
+      const t = document.getElementById('mbti-type').value;
+      if(!t){ alert('Pilih MBTI'); return; }
+      localStorage.setItem('healio_mbti', t);
+      document.getElementById('mbti-result').classList.remove('hidden');
+      document.getElementById('mbti-result').innerHTML = `<b>Jenis MBTI:</b> ${t}<div class="mt-2 text-sm">Saranan gaya hidup dimuatkan di Dashboard.</div>`;
+      refreshDashboard();
+      alert('MBTI disimpan');
+    }
+
+    /* ----------------------------
+       Dashboard refresh
+       ---------------------------- */
+    function refreshDashboard(){
+      const prof = JSON.parse(localStorage.getItem('healio_profile') || 'null');
+      document.getElementById('db-bmi').textContent = prof ? prof.bmi : '-';
+      const steps = localStorage.getItem('healio_steps') || 0;
+      document.getElementById('db-steps').textContent = steps;
+      const cal = JSON.parse(localStorage.getItem('healio_cal') || 'null');
+      document.getElementById('db-cal').textContent = cal ? cal.total + ' kcal' : '-';
+      const mental = JSON.parse(localStorage.getItem('healio_mental') || 'null');
+      document.getElementById('db-mental').textContent = mental ? `${mental.anxiety}/${mental.dep}/${mental.stress}` : '-';
+
+      // details
+      const det = document.getElementById('db-details');
+      let html = '';
+      if(prof){ html += `<div class="mb-2"><b>Profil:</b> ${escape(prof.name||'-')} • BMI ${prof.bmi} (${prof.status})</div>`; }
+      if(cal && cal.entries && cal.entries.length>0){
+        html += `<div class="mb-2"><b>Kalori hari ini:</b> ${cal.total} kcal — ${cal.entries.length} item</div>`;
+      }
+      if(steps) html += `<div class="mb-2"><b>Langkah:</b> ${steps}</div>`;
+      if(mental) html += `<div class="mb-2"><b>Mental:</b> ${mental.anxiety}/${mental.dep}/${mental.stress}</div>`;
+      if(!html) html = 'Tiada data lagi. Gunakan modul untuk mula.';
+      det.innerHTML = html;
+    }
+
+    /* ----------------------------
+       Utility
+       ---------------------------- */
+    function escape(s){ if(!s && s!==0) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+
+    /* ----------------------------
+       Init on load
+       ---------------------------- */
+    window.addEventListener('DOMContentLoaded', function(){
+      initBubbles();
+      show('home');
+      updateStepsUI();
+      updateCaloriesUI();
+      refreshDashboard();
     });
 
-    function renderMentalResults(r){
-      const container = $('mental-health-results');
-      container.classList.remove('hidden');
-      container.innerHTML = `
-        <div class="bg-white rounded-xl p-4 shadow-sm">
-          <h4 class="font-semibold">Keputusan</h4>
-          <p class="mt-2 text-sm">Anxiety: <b>${r.anxiety}</b></p>
-          <p class="text-sm">Depression: <b>${r.depression}</b></p>
-          <p class="text-sm">Stress: <b>${r.stress}</b></p>
-          <div class="mt-3">
-            <h5 class="font-medium">Cadangan Ringkas</h5>
-            <ul class="list-disc pl-5 mt-2 text-sm text-gray-700">
-              <li>Jika keputusan 'teruk' atau 'sangat-teruk', segera hubungi talian bantuan.</li>
-              <li>Amalkan aktiviti menenangkan & journaling setiap hari.</li>
-            </ul>
-          </div>
-        </div>
-      `;
-    }
-
-    /* -----------------------------
-       MBTI form handling
-       ----------------------------- */
-    document.getElementById('mbti-form').addEventListener('submit', function(e){
-      e.preventDefault();
-      const type = $('mbti-type').value;
-      if(!type){ alert('Sila pilih jenis MBTI'); return; }
-      localStorage.setItem('healio_mbti', type);
-      renderMBTIRecommendations(type);
-      updateDashboard();
-      alert('Jenis MBTI disimpan.');
-    });
-
-    function renderMBTIRecommendations(type){
-      const box = $('mbti-recommendations');
-      box.classList.remove('hidden');
-      const lifestyle = {
-        'INFP': 'Introvert: cuba yoga & meditasi. Masa sunyi untuk recharge.',
-        'ENFP': 'Extrovert: aktiviti berkumpulan & latihan komuniti.',
-        'INTJ': 'Struktur & target-driven latihan, rutin yang konsisten.',
-        'ESTJ': 'Aktiviti berkumpulan & kompetitif.',
-        // fallback
-        'default': 'Gabungkan kebaikan senaman & rehat, pilih aktiviti yang menyeronokkan.'
-      };
-      const exercise = {
-        'INFP': 'Yoga, pilates, jalan santai.',
-        'ENFP': 'Zumba, team sports, hiking.',
-        'INTJ': 'Latihan HIIT, weight training.',
-        'ESTJ': 'Kelas kecergasan berkumpulan, sukan berpasukan.',
-        'default': 'Berjalan cepat 30 minit 5x seminggu.'
-      };
-      $('mbti-lifestyle-content').innerHTML = `<p class="text-sm text-gray-700">${lifestyle[type]||lifestyle['default']}</p>`;
-      $('mbti-exercise-content').innerHTML = `<p class="text-sm text-gray-700">${exercise[type]||exercise['default']}</p>`;
-    }
-
-    /* -----------------------------
-       Dashboard update
-       ----------------------------- */
-    function updateDashboard(){
-      // profile/bmi
-      const profile = JSON.parse(localStorage.getItem('healio_profile') || 'null');
-      if(profile){
-        $('dashboard-bmi').textContent = profile.bmi || '-';
-        // populate physical summary
-        $('physical-health-summary').innerHTML = `<p class="text-sm">Nama: <b>${escapeHtml(profile.name||'-')}</b><br/>Status BMI: <b>${profile.status}</b></p>`;
-      } else {
-        $('dashboard-bmi').textContent = '-';
-      }
-
-      // steps
-      const steps = parseInt(localStorage.getItem('healio_steps')||0,10);
-      $('dashboard-steps').textContent = steps || 0;
-
-      // calories
-      const calData = JSON.parse(localStorage.getItem('healio_calories') || 'null');
-      const total = (calData && calData.total) ? calData.total : 0;
-      $('dashboard-calories').textContent = total;
-
-      // mental
-      const mental = JSON.parse(localStorage.getItem('healio_mental')||'null');
-      $('dashboard-mental').textContent = mental ? `${mental.anxiety}/${mental.depression}/${mental.stress}` : '-';
-
-      // activity & nutrition summary
-      if(calData && calData.total > 0){
-        $('activity-nutrition-summary').innerHTML = `<p class="text-sm">Kalori hari ini: <b>${calData.total} kcal</b> (${calData.entries.length} item)</p>`;
-      }
-      if(profile){
-        $('mental-health-summary').innerHTML = `<p class="text-sm">Terakhir dikemaskini: <b>${new Date().toLocaleString()}</b></p>`;
-      }
-    }
-
-    /* -----------------------------
-       Page init on load
-       ----------------------------- */
-    function init(){
-      createBubbles();
-      // default show home
-      showSection('home');
-      // restore any saved states
-      updateStepsDisplay();
-      updateCaloriesDisplay();
-      updateDashboard();
-      // if MBTI saved, render recs
-      const mbti = localStorage.getItem('healio_mbti');
-      if(mbti) renderMBTIRecommendations(mbti);
-    }
-
-    // on load
-    window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
